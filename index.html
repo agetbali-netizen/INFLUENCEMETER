@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Influence Meter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
+        .card { max-width: 750px; }
+        .input-group { position: relative; }
+        .input-field { background-color: #f9fafb; transition: border-color 0.3s; }
+        .input-field:focus { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+        .input-label { transition: all 0.3s; pointer-events: none; }
+        .input-field:focus + .input-label,
+        .input-field:not(:placeholder-shown) + .input-label { top: -8px; left: 16px; font-size: 12px; background-color: white; padding: 0 8px; }
+        .submit-btn { transition: transform 0.3s, box-shadow 0.3s; }
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3); }
+        .question-slider-container { background-color: #f9fafb; border: 1px solid #e5e7eb; }
+        .slider-wrapper { position: relative; height: 20px; }
+        .slider-track { position: absolute; top: 50%; width: 100%; height: 8px; background-color: #e5e7eb; border-radius: 4px; }
+        .slider-thumb { position: absolute; top: 50%; transform: translateY(-50%) translateX(-50%); width: 24px; height: 24px; background-color: #667eea; border: 2px solid white; border-radius: 50%; cursor: grab; transition: left 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .slider-value { position: absolute; top: -24px; transform: translateX(-50%); font-weight: 600; color: #667eea; transition: left 0.3s; }
+        .influence-ladder { max-width: 200px; }
+        .ladder-step { transition: all 0.3s; transform: scale(0.95); opacity: 0.6; }
+        .ladder-step.active { transform: scale(1); opacity: 1; background-color: #667eea; color: white; box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3); }
+        .ladder-step img { width: 48px; height: 48px; }
+    </style>
+</head>
+<body class="flex justify-center items-center min-h-screen p-5">
+    <div class="card bg-white rounded-3xl shadow-xl p-10 w-full">
+        <div class="flex justify-center mb-6">
+            <img src="https://agetdevelopment.com/wp-content/uploads/2019/03/AGET-horizontal-logo-2.png" alt="AGET Logo" class="w-48">
+        </div>
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Influence Meter</h1>
+        
+        <form id="influenceForm" onsubmit="handleSubmit(event)">
+            <div class="input-group mb-6">
+                <input type="text" id="name" class="input-field w-full p-4 border border-gray-200 rounded-xl" placeholder=" " required>
+                <label for="name" class="input-label absolute left-5 top-4 text-gray-400">Nama Lengkap</label>
+            </div>
+            
+            <div class="input-group mb-6">
+                <input type="email" id="email" class="input-field w-full p-4 border border-gray-200 rounded-xl" placeholder=" " required>
+                <label for="email" class="input-label absolute left-5 top-4 text-gray-400">Alamat Email</label>
+            </div>
+            
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Penilaian Pengaruh</h2>
+            <p class="text-gray-600 mb-4">Silakan nilai setiap pernyataan dari 1 (Rendah) hingga 10 (Sangat Expert).</p>
+            
+            <div class="flex flex-col gap-5">
+                <div class="question-slider-container p-4 rounded-xl">
+                    <div class="text-gray-700 font-semibold mb-4">1. Tampak sangat ahli dan berkompeten</div>
+                    <div class="slider-wrapper">
+                        <div class="slider-track"></div>
+                        <div class="slider-thumb" style="left: 0%;"></div>
+                        <div class="slider-value" style="left: 0%;">1</div>
+                    </div>
+                    <input type="range" class="w-full opacity-0 cursor-pointer" min="1" max="10" value="1" data-question="q1" oninput="updateSlider(this)">
+                </div>
+                
+                <div class="question-slider-container p-4 rounded-xl">
+                    <div class="text-gray-700 font-semibold mb-4">2. Memiliki prestasi yang menjual</div>
+                    <div class="slider-wrapper">
+                        <div class="slider-track"></div>
+                        <div class="slider-thumb" style="left: 0%;"></div>
+                        <div class="slider-value" style="left: 0%;">1</div>
+                    </div>
+                    <input type="range" class="w-full opacity-0 cursor-pointer" min="1" max="10" value="1" data-question="q2" oninput="updateSlider(this)">
+                </div>
+                
+                <div class="question-slider-container p-4 rounded-xl">
+                    <div class="text-gray-700 font-semibold mb-4">3. Keterkaitan dengan nama (orang/organisasi) yang kredibel</div>
+                    <div class="slider-wrapper">
+                        <div class="slider-track"></div>
+                        <div class="slider-thumb" style="left: 0%;"></div>
+                        <div class="slider-value" style="left: 0%;">1</div>
+                    </div>
+                    <input type="range" class="w-full opacity-0 cursor-pointer" min="1" max="10" value="1" data-question="q3" oninput="updateSlider(this)">
+                </div>
+                
+                <div class="question-slider-container p-4 rounded-xl">
+                    <div class="text-gray-700 font-semibold mb-4">4. Kemampuan untuk fokus dan hadir sepenuhnya</div>
+                    <div class="slider-wrapper">
+                        <div class="slider-track"></div>
+                        <div class="slider-thumb" style="left: 0%;"></div>
+                        <div class="slider-value" style="left: 0%;">1</div>
+                    </div>
+                    <input type="range" class="w-full opacity-0 cursor-pointer" min="1" max="10" value="1" data-question="q4" oninput="updateSlider(this)">
+                </div>
+                
+                <div class="question-slider-container p-4 rounded-xl">
+                    <div class="text-gray-700 font-semibold mb-4">5. Kepribadian hangat</div>
+                    <div class="slider-wrapper">
+                        <div class="slider-track"></div>
+                        <div class="slider-thumb" style="left: 0%;"></div>
+                        <div class="slider-value" style="left: 0%;">1</div>
+                    </div>
+                    <input type="range" class="w-full opacity-0 cursor-pointer" min="1" max="10" value="1" data-question="q5" oninput="updateSlider(this)">
+                </div>
+                
+                <div class="question-slider-container p-4 rounded-xl">
+                    <div class="text-gray-700 font-semibold mb-4">6. Memiliki *power* dalam tiap kata yang diucapkan</div>
+                    <div class="slider-wrapper">
+                        <div class="slider-track"></div>
+                        <div class="slider-thumb" style="left: 0%;"></div>
+                        <div class="slider-value" style="left: 0%;">1</div>
+                    </div>
+                    <input type="range" class="w-full opacity-0 cursor-pointer" min="1" max="10" value="1" data-question="q6" oninput="updateSlider(this)">
+                </div>
+                
+                <div class="question-slider-container p-4 rounded-xl">
+                    <div class="text-gray-700 font-semibold mb-4">7. Daya Tarik yang kuat</div>
+                    <div class="slider-wrapper">
+                        <div class="slider-track"></div>
+                        <div class="slider-thumb" style="left: 0%;"></div>
+                        <div class="slider-value" style="left: 0%;">1</div>
+                    </div>
+                    <input type="range" class="w-full opacity-0 cursor-pointer" min="1" max="10" value="1" data-question="q7" oninput="updateSlider(this)">
+                </div>
+                
+                <div class="question-slider-container p-4 rounded-xl">
+                    <div class="text-gray-700 font-semibold mb-4">8. Penampilan yang pantas</div>
+                    <div class="slider-wrapper">
+                        <div class="slider-track"></div>
+                        <div class="slider-thumb" style="left: 0%;"></div>
+                        <div class="slider-value" style="left: 0%;">1</div>
+                    </div>
+                    <input type="range" class="w-full opacity-0 cursor-pointer" min="1" max="10" value="1" data-question="q8" oninput="updateSlider(this)">
+                </div>
+                
+                <div class="question-slider-container p-4 rounded-xl">
+                    <div class="text-gray-700 font-semibold mb-4">9. Postur tubuh meyakinkan</div>
+                    <div class="slider-wrapper">
+                        <div class="slider-track"></div>
+                        <div class="slider-thumb" style="left: 0%;"></div>
+                        <div class="slider-value" style="left: 0%;">1</div>
+                    </div>
+                    <input type="range" class="w-full opacity-0 cursor-pointer" min="1" max="10" value="1" data-question="q9" oninput="updateSlider(this)">
+                </div>
+                
+                <div class="question-slider-container p-4 rounded-xl">
+                    <div class="text-gray-700 font-semibold mb-4">10. Memancarkan kepercayaan diri yang tinggi</div>
+                    <div class="slider-wrapper">
+                        <div class="slider-track"></div>
+                        <div class="slider-thumb" style="left: 0%;"></div>
+                        <div class="slider-value" style="left: 0%;">1</div>
+                    </div>
+                    <input type="range" class="w-full opacity-0 cursor-pointer" min="1" max="10" value="1" data-question="q10" oninput="updateSlider(this)">
+                </div>
+                
+                <div class="question-slider-container p-4 rounded-xl">
+                    <div class="text-gray-700 font-semibold mb-4">11. Kata-kata yang persuasif</div>
+                    <div class="slider-wrapper">
+                        <div class="slider-track"></div>
+                        <div class="slider-thumb" style="left: 0%;"></div>
+                        <div class="slider-value" style="left: 0%;">1</div>
+                    </div>
+                    <input type="range" class="w-full opacity-0 cursor-pointer" min="1" max="10" value="1" data-question="q11" oninput="updateSlider(this)">
+                </div>
+                
+                <div class="question-slider-container p-4 rounded-xl">
+                    <div class="text-gray-700 font-semibold mb-4">12. Suara enak didengar</div>
+                    <div class="slider-wrapper">
+                        <div class="slider-track"></div>
+                        <div class="slider-thumb" style="left: 0%;"></div>
+                        <div class="slider-value" style="left: 0%;">1</div>
+                    </div>
+                    <input type="range" class="w-full opacity-0 cursor-pointer" min="1" max="10" value="1" data-question="q12" oninput="updateSlider(this)">
+                </div>
+                
+                <div class="question-slider-container p-4 rounded-xl">
+                    <div class="text-gray-700 font-semibold mb-4">13. Intonasi dinamis dan selaras dengan pesan</div>
+                    <div class="slider-wrapper">
+                        <div class="slider-track"></div>
+                        <div class="slider-thumb" style="left: 0%;"></div>
+                        <div class="slider-value" style="left: 0%;">1</div>
+                    </div>
+                    <input type="range" class="w-full opacity-0 cursor-pointer" min="1" max="10" value="1" data-question="q13" oninput="updateSlider(this)">
+                </div>
+                
+                <div class="question-slider-container p-4 rounded-xl">
+                    <div class="text-gray-700 font-semibold mb-4">14. Bahasa tubuh meyakinkan</div>
+                    <div class="slider-wrapper">
+                        <div class="slider-track"></div>
+                        <div class="slider-thumb" style="left: 0%;"></div>
+                        <div class="slider-value" style="left: 0%;">1</div>
+                    </div>
+                    <input type="range" class="w-full opacity-0 cursor-pointer" min="1" max="10" value="1" data-question="q14" oninput="updateSlider(this)">
+                </div>
+            </div>
+            
+            <button type="submit" class="submit-btn w-full p-4 mt-6 text-white font-semibold rounded-xl" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                Lihat Hasil Penilaian
+            </button>
+        </form>
+        
+        <div id="result" class="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg hidden">
+            <h3 class="font-semibold text-green-800 mb-2">Hasil Penilaian Anda</h3>
+            <div id="resultContent" class="text-green-700"></div>
+            <div id="influenceVisual" class="influence-ladder mt-6 mx-auto flex flex-col-reverse gap-3">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        const webAppUrl = 'https://script.google.com/macros/s/AKfycbwQefL0q-45wYVlgBXMzr_IUSMAGFguq_LOJa4bOHwr5HlS3DwvC3h-_NDVAojRqr0I/exec';
+
+        function updateSlider(slider) {
+            const container = slider.closest('.question-slider-container');
+            const thumb = container.querySelector('.slider-thumb');
+            const valueDisplay = container.querySelector('.slider-value');
+            
+            const value = slider.value;
+            const percentage = ((value - 1) / 9) * 100;
+            
+            thumb.style.left = percentage + '%';
+            valueDisplay.style.left = percentage + '%';
+            valueDisplay.textContent = value;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('input[type="range"]').forEach(slider => {
+                updateSlider(slider);
+            });
+        });
+
+        async function handleSubmit(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const allSliders = document.querySelectorAll('input[type="range"]');
+            
+            let totalScore = 0;
+            const scores = {};
+            
+            allSliders.forEach(slider => {
+                const questionId = slider.getAttribute('data-question');
+                const score = parseInt(slider.value, 10);
+                scores[questionId] = score;
+                totalScore += score;
+            });
+            
+            const averageScore = (totalScore / allSliders.length).toFixed(2);
+            let influenceLevel, explanation;
+
+            if (averageScore <= 2.0) {
+                influenceLevel = 'Rendah';
+                explanation = 'Tingkat pengaruh Anda masih sangat rendah.';
+            } else if (averageScore <= 4.0) {
+                influenceLevel = 'Pemula';
+                explanation = 'Anda berada di tahap awal. Teruslah berlatih.';
+            } else if (averageScore <= 6.0) {
+                influenceLevel = 'Berkembang';
+                explanation = 'Kemampuan pengaruh Anda sedang berkembang.';
+            } else if (averageScore <= 8.0) {
+                influenceLevel = 'Kompeten';
+                explanation = 'Anda sudah kompeten dalam mempengaruhi.';
+            } else if (averageScore <= 9.0) {
+                influenceLevel = 'Mahir';
+                explanation = 'Anda sangat mahir dalam mempengaruhi orang.';
+            } else {
+                influenceLevel = 'Sangat Expert';
+                explanation = 'Anda adalah seorang ahli yang luar biasa.';
+            }
+            
+            // Kirim data ke Google Apps Script
+            const formData = new FormData();
+            formData.append('name', name);
+            formData.append('email', email);
+            formData.append('averageScore', averageScore);
+            formData.append('influenceLevel', influenceLevel);
+            formData.append('scores', JSON.stringify(scores));
+
+            try {
+                const response = await fetch(webAppUrl, {
+                    method: 'POST',
+                    body: formData,
+                    mode: 'no-cors'
+                });
+                
+                showResults(name, email, averageScore, influenceLevel, explanation);
+            } catch (error) {
+                console.error('Error submitting data:', error);
+                alert('Terjadi kesalahan saat menyimpan data. Silakan coba lagi.');
+            }
+        }
+        
+        function showResults(name, email, averageScore, influenceLevel, explanation) {
+            const result = document.getElementById('result');
+            const resultContent = document.getElementById('resultContent');
+            const visualContainer = document.getElementById('influenceVisual');
+
+            resultContent.innerHTML = `
+                <p><strong>Nama:</strong> ${name}</p>
+                <p><strong>Email:</strong> ${email}</p>
+                <p><strong>Skor Rata-rata:</strong> ${averageScore} dari 10</p>
+                <p><strong>Tingkat Pengaruh:</strong> ${influenceLevel}</p>
+                <p class="mt-2 text-gray-600">${explanation}</p>
+            `;
+            
+            visualContainer.innerHTML = '';
+            const levels = ['Rendah', 'Pemula', 'Berkembang', 'Kompeten', 'Mahir', 'Sangat Expert'];
+            const levelIcons = [
+                'https://img.icons8.com/color/96/000000/empty-trash.png',
+                'https://img.icons8.com/color/96/000000/rookie.png',
+                'https://img.icons8.com/color/96/000000/growth-graph--v1.png',
+                'https://img.icons8.com/color/96/000000/medal-first-place--v1.png',
+                'https://img.icons8.com/color/96/000000/star.png',
+                'https://img.icons8.com/color/96/000000/crown.png'
+            ];
+
+            levels.forEach((level, index) => {
+                const step = document.createElement('div');
+                step.className = `ladder-step flex items-center justify-between p-3 rounded-xl ${influenceLevel === level ? 'active' : ''}`;
+                step.innerHTML = `
+                    <span class="font-semibold text-sm">${level}</span>
+                    <img src="${levelIcons[index]}" alt="${level} icon" class="w-12 h-12">
+                `;
+                visualContainer.appendChild(step);
+            });
+
+            result.classList.remove('hidden');
+            result.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
