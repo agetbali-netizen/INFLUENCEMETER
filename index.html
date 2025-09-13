@@ -201,12 +201,16 @@
             <div id="resultContent" class="text-green-700"></div>
             <div id="influenceVisual" class="influence-ladder mt-6 mx-auto flex flex-col-reverse gap-3">
             </div>
+             <a id="whatsappButton" href="#" class="mt-6 w-full flex items-center justify-center p-4 rounded-xl text-white font-semibold bg-green-500 hover:bg-green-600 transition-colors" target="_blank">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.89 6.11A8.995 8.995 0 0012 3C7.03 3 3 7.03 3 12a8.995 8.995 0 002.89 6.11l-2.43 2.43a.75.75 0 001.06 1.06l2.43-2.43A8.995 8.995 0 0012 21c4.97 0 9-4.03 9-9a8.995 8.995 0 00-3.11-6.89z" />
+                </svg>
+                Kirim Hasil via WhatsApp
+            </a>
         </div>
     </div>
 
     <script>
-        const webAppUrl = 'https://script.google.com/macros/library/d/1CfgNXInLPqWxCmWEVnWmmoJZIszXOR3_DcgDyWp_8xftOoSURuVJ3zoY/1';
-
         function updateSlider(slider) {
             const container = slider.closest('.question-slider-container');
             const thumb = container.querySelector('.slider-thumb');
@@ -266,25 +270,7 @@
                 explanation = 'Anda adalah seorang ahli yang luar biasa.';
             }
             
-            const formData = new FormData();
-            formData.append('name', name);
-            formData.append('email', email);
-            formData.append('averageScore', averageScore);
-            formData.append('influenceLevel', influenceLevel);
-            formData.append('scores', JSON.stringify(scores));
-
-            try {
-                const response = await fetch(webAppUrl, {
-                    method: 'POST',
-                    body: formData,
-                    mode: 'no-cors'
-                });
-                
-                showResults(name, email, averageScore, influenceLevel, explanation);
-            } catch (error) {
-                console.error('Error submitting data:', error);
-                alert('Terjadi kesalahan saat menyimpan data. Silakan coba lagi.');
-            }
+            showResults(name, email, averageScore, influenceLevel, explanation);
         }
         
         function showResults(name, email, averageScore, influenceLevel, explanation) {
@@ -320,6 +306,12 @@
                 `;
                 visualContainer.appendChild(step);
             });
+            
+            // Set up WhatsApp button
+            const whatsappButton = document.getElementById('whatsappButton');
+            const message = `Halo AGET Development!%0A%0ASaya telah mengisi formulir Influence Meter.%0ABerikut hasil penilaian saya:%0A%0ANama: ${name}%0AEmail: ${email}%0ASkor Rata-rata: ${averageScore} dari 10%0ATingkat Pengaruh: ${influenceLevel}%0A%0ATerima kasih!`;
+            const whatsappUrl = `https://wa.me/6282210126118?text=${message}`;
+            whatsappButton.href = whatsappUrl;
 
             result.classList.remove('hidden');
             result.scrollIntoView({ behavior: 'smooth' });
