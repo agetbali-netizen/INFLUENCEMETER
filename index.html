@@ -200,12 +200,12 @@
             <h3 class="font-semibold text-green-800 mb-2">Hasil Penilaian Anda</h3>
             <div id="resultContent" class="text-green-700"></div>
             <div id="influenceVisual" class="influence-ladder mt-6 mx-auto flex flex-col-reverse gap-3">
-                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        const webAppUrl = 'https://script.google.com/macros/s/AKfycbwQefL0q-45wYVlgBXMzr_IUSMAGFguq_LOJa4bOHwr5HlS3DwvC3h-_NDVAojRqr0I/exec';
+        const webAppUrl = 'https://script.google.com/macros/library/d/1CfgNXInLPqWxCmWEVnWmmoJZIszXOR3_DcgDyWp_8xftOoSURuVJ3zoY/1';
 
         function updateSlider(slider) {
             const container = slider.closest('.question-slider-container');
@@ -303,12 +303,12 @@
             visualContainer.innerHTML = '';
             const levels = ['Rendah', 'Pemula', 'Berkembang', 'Kompeten', 'Mahir', 'Sangat Expert'];
             const levelIcons = [
-                'https://img.icons8.com/plasticine/100/cancel.png',          // Rendah
-                'https://img.icons8.com/plasticine/100/new.png',             // Pemula
-                'https://img.icons8.com/plasticine/100/line-chart.png',      // Berkembang
-                'https://img.icons8.com/plasticine/100/checked--v1.png',     // Kompeten
-                'https://img.icons8.com/plasticine/100/star--v1.png',        // Mahir
-                'https://img.icons8.com/plasticine/100/crown--v1.png'        // Sangat Expert
+                'https://img.icons8.com/plasticine/100/cancel.png',
+                'https://img.icons8.com/plasticine/100/new.png',
+                'https://img.icons8.com/plasticine/100/line-chart.png',
+                'https://img.icons8.com/plasticine/100/checked--v1.png',
+                'https://img.icons8.com/plasticine/100/star--v1.png',
+                'https://img.icons8.com/plasticine/100/crown--v1.png'
             ];
 
             levels.forEach((level, index) => {
